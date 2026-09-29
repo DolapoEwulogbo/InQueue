@@ -1,0 +1,18 @@
+# PythonAnywhere WSGI file snippet.
+# Dashboard -> Web tab -> Code -> WSGI configuration file -> paste this
+# (already filled in with your username - just copy-paste the whole file).
+#
+# This tells PythonAnywhere how to import the wrapper in backend/wsgi.py,
+# which converts your FastAPI (ASGI) app to WSGI.
+
+import os
+import sys
+
+PROJECT_DIR = '/home/DolapoEwulogbo/InQueue/to_do_list_1/backend'
+if PROJECT_DIR not in sys.path:
+    sys.path.insert(0, PROJECT_DIR)
+
+os.environ.setdefault('FRONTEND_URL', 'https://inqueue-ochre.vercel.app')
+
+from wsgi import application  # noqa: E402,F401 -- PythonAnywhere looks for "application"
+

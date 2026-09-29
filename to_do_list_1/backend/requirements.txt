@@ -6,3 +6,6 @@
 fastapi==0.141.1
 uvicorn==0.54.0
 sqlalchemy==2.1.1
+# Needed only for PythonAnywhere classic (WSGI) hosting: converts the
+# FastAPI ASGI app to WSGI. Harmless locally.
+a2wsgi==1.10.1

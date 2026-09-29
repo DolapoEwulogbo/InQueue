@@ -1,0 +1,42 @@
+# InQueue CI: test backend (FastAPI) + build frontend (Vite).
+# The default GitHub templates (django.yml, python-package.yml, node.js.yml,
+# python-publish.yml) do not match this repo layout, so they are disabled.
+# See disabled-workflows/ for the originals.
+
+name: InQueue CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install backend deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r to_do_list_1/backend/requirements.txt
+      - name: Smoke-test imports + DB schema
+        run: |
+          cd to_do_list_1/backend
+          python -c "from app.main import app; from app.database import ensure_schema; ensure_schema(); print('backend OK')"
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: to_do_list_1/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm run build

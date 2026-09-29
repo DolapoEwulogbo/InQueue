@@ -206,3 +206,72 @@ To prove the React code compiles without starting a server:
 That writes a `dist/` folder of static files - handy later if you ever want to put
 this app online, but you do not need it for local use.
 
+---
+
+## 8. Put it online: Vercel (frontend) + PythonAnywhere (backend)
+
+Vercel alone is not enough: it has no persistent disk, so `todo.db`
+(SQLite) would be wiped. Keep the split:
+
+- Frontend (React) -> Vercel
+- Backend (FastAPI + SQLite) -> PythonAnywhere (files persist, so `todo.db` survives)
+
+### A. Backend on PythonAnywhere (classic WSGI - easiest)
+
+1. Sign up at https://www.pythonanywhere.com, note your `YOURUSERNAME`.
+   Your API will be `https://YOURUSERNAME.pythonanywhere.com`.
+
+2. Open a **Bash** console on PythonAnywhere and run:
+
+     git clone https://github.com/DolapoEwulogbo/InQueue.git
+     mkvirtualenv inqueue --python=/usr/bin/python3.10
+     workon inqueue
+     pip install -r ~/InQueue/to_do_list_1/backend/requirements.txt
+
+3. Dashboard -> **Web** -> **Add a new web app** -> **Manual configuration**
+   -> **Python 3.10**. Then set:
+
+   - **Source code:** `/home/YOURUSERNAME/InQueue/to_do_list_1/backend`
+   - **Virtualenv:** `/home/YOURUSERNAME/.virtualenvs/inqueue`
+
+4. Dashboard -> Web -> **Code -> WSGI configuration file** -> replace its
+   contents with `backend/PYTHONANYWHERE_WSGI_SNIPPET.txt` from this repo
+   (remember to replace `YOURUSERNAME` and `FRONTEND_URL` with your real
+   Vercel URL, e.g. `https://inqueue.vercel.app`).
+
+   What that does: it imports `backend/wsgi.py`, which wraps the FastAPI
+   `app` (`app.main:app`, ASGI) with `a2wsgi` so PythonAnywhere's classic
+   WSGI server can run it.
+
+5. Press green **Reload**, then visit in your browser:
+
+   - `https://YOURUSERNAME.pythonanywhere.com/api/health` -> `{"status":"ok"}`
+   - `https://YOURUSERNAME.pythonanywhere.com/docs` -> Swagger UI
+
+   If it fails, check **Web -> Log files -> Error log**.
+
+### A-alt. Backend on PythonAnywhere (new ASGI beta)
+
+If you have ASGI access (`pa` tool), you don't need `wsgi.py`:
+
+    pip install --upgrade pythonanywhere
+    pip install "uvicorn[standard]" fastapi sqlalchemy==2.1.1
+    pa website create --domain-name YOURUSERNAME.pythonanywhere.com \
+      --command "/home/YOURUSERNAME/.virtualenvs/inqueue/bin/uvicorn --app-dir /home/YOURUSERNAME/InQueue/to_do_list_1/backend --uds ${DOMAIN_SOCKET} app.main:app"
+    pa website env set --domain-name YOURUSERNAME.pythonanywhere.com \
+      --key FRONTEND_URL --value https://your-vercel-app.vercel.app
+    pa website reload --domain-name YOURUSERNAME.pythonanywhere.com
+
+### B. Frontend on Vercel
+
+1. Vercel Dashboard -> Project -> Settings -> General -> **Root Directory**
+   = `to_do_list_1` (this repo keeps the app in a subfolder).
+2. Settings -> Environment Variables -> add:
+
+     VITE_API_URL=https://YOURUSERNAME.pythonanywhere.com/api
+
+   `frontend/src/api.js` uses this in production, and falls back to `/api`
+   (the Vite proxy to `127.0.0.1:8000`) locally.
+3. Deployments -> Redeploy (uncheck Build Cache for a clean build).
+
+
