@@ -1,0 +1,8 @@
+# Backend dependencies. Install them with:
+#   python -m venv .venv
+#   .venv\Scripts\python.exe -m pip install -r requirements.txt
+#
+# Versions are pinned so your setup keeps working exactly like it does today.
+fastapi==0.141.1
+uvicorn==0.54.0
+sqlalchemy==2.1.1

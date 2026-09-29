@@ -1,0 +1,36 @@
+﻿--- workspace root ---
+to_do_list_1
+final_check.txt
+final_versions.txt
+--- project files ---
+C:\Users\User\HNG\to_do_list_1\.gitignore
+C:\Users\User\HNG\to_do_list_1\README.md
+C:\Users\User\HNG\to_do_list_1\start-all.cmd
+C:\Users\User\HNG\to_do_list_1\start-backend.cmd
+C:\Users\User\HNG\to_do_list_1\start-frontend.cmd
+C:\Users\User\HNG\to_do_list_1\backend\requirements.txt
+C:\Users\User\HNG\to_do_list_1\backend\run.py
+C:\Users\User\HNG\to_do_list_1\backend\smoke_test.py
+C:\Users\User\HNG\to_do_list_1\backend\todo.db
+C:\Users\User\HNG\to_do_list_1\backend\app\database.py
+C:\Users\User\HNG\to_do_list_1\backend\app\main.py
+C:\Users\User\HNG\to_do_list_1\backend\app\models.py
+C:\Users\User\HNG\to_do_list_1\backend\app\schemas.py
+C:\Users\User\HNG\to_do_list_1\backend\app\__init__.py
+C:\Users\User\HNG\to_do_list_1\frontend\index.html
+C:\Users\User\HNG\to_do_list_1\frontend\package.json
+C:\Users\User\HNG\to_do_list_1\frontend\vite.config.js
+C:\Users\User\HNG\to_do_list_1\frontend\src\api.js
+C:\Users\User\HNG\to_do_list_1\frontend\src\App.jsx
+C:\Users\User\HNG\to_do_list_1\frontend\src\index.css
+C:\Users\User\HNG\to_do_list_1\frontend\src\main.jsx
+C:\Users\User\HNG\to_do_list_1\frontend\src\components\AddTaskForm.jsx
+C:\Users\User\HNG\to_do_list_1\frontend\src\components\CalendarView.jsx
+C:\Users\User\HNG\to_do_list_1\frontend\src\components\DueDateEditor.jsx
+C:\Users\User\HNG\to_do_list_1\frontend\src\components\TaskItem.jsx
+C:\Users\User\HNG\to_do_list_1\frontend\src\components\TaskList.jsx
+C:\Users\User\HNG\to_do_list_1\frontend\src\utils\dates.js
+--- tasks in the database ---
+#2 Buy groceries | due 2026-09-28 09:00:00 | done=False
+#3 Book dentist appointment | due 2026-10-02  | done=False
+#1 Review the InQueue README | due 2026-09-29 18:00:00 | done=False

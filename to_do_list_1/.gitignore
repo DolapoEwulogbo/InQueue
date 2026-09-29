@@ -1,0 +1,15 @@
+# Ignore generated / local-only files so the project folder stays tidy.
+node_modules/
+dist/
+.venv/
+__pycache__/
+*.py[cod]
+
+# The SQLite database file is your personal data - don't commit it.
+backend/todo.db
+
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
