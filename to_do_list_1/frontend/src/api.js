@@ -1,9 +1,14 @@
 // All communication with the FastAPI backend lives in this file.
 //
-// Requests go to "/api/..." on the same origin, and vite.config.js forwards
-// them to the Python server on port 8000.
-
-const BASE_URL = '/api'
+// Locally, requests go to "/api/..." on the same origin and vite.config.js
+// forwards them to the Python server on port 8000.
+//
+// In production the frontend is hosted separately (Vercel) from the backend, so
+// set VITE_API_URL to the backend's API prefix, e.g.
+//   VITE_API_URL=https://your-backend.example.com/api
+// When VITE_API_URL is not defined we fall back to "/api", which keeps local
+// development working with the Vite proxy.
+const BASE_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '')
 
 async function request(path, options = {}) {
   const response = await fetch(`${BASE_URL}${path}`, {

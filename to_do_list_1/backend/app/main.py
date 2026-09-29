@@ -4,6 +4,7 @@ Run it with:      python run.py            (from the backend folder)
 Interactive docs: http://127.0.0.1:8000/docs
 """
 
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, status
@@ -32,14 +33,25 @@ app = FastAPI(
 
 # The React dev server runs on a different port, so the browser treats it as a
 # different origin. CORS tells the browser that these calls are allowed.
+#
+# Local development is always allowed. In production the frontend lives on a
+# different host (for example Vercel), so we also allow:
+#   - the exact URL in the FRONTEND_URL environment variable, and
+#   - every *.vercel.app origin, which covers preview deployments whose URLs
+#     change on each commit.
+LOCAL_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:4173",
+]
+FRONTEND_URL = os.getenv("FRONTEND_URL", "").rstrip("/")
+ALLOWED_ORIGINS = LOCAL_ORIGINS + ([FRONTEND_URL] if FRONTEND_URL else [])
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:4173",
-        "http://127.0.0.1:4173",
-    ],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

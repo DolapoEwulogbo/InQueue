@@ -3,22 +3,56 @@
 We use SQLite (a single file called todo.db) so there is nothing to install
 and no server to configure. SQLAlchemy is the layer that lets us talk to that
 file using normal Python classes instead of writing SQL by hand.
+
+By default the file lives next to this project (backend/todo.db). On a host
+that gives you a persistent disk, point DATABASE_URL at the mounted folder so
+the data survives restarts, e.g.:
+
+    DATABASE_URL=sqlite:////var/data/todo.db
+
+(Note the four slashes: ``sqlite:///`` + the absolute path ``/var/data/...``.)
 """
 
+import os
 from pathlib import Path
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-# backend/database.py -> parent.parent is the backend/ folder itself
+# backend/app/database.py -> parent.parent is the backend/ folder itself
 BACKEND_DIR = Path(__file__).resolve().parent.parent
-DATABASE_PATH = BACKEND_DIR / "todo.db"
+
+# Used when DATABASE_URL is not set (local development and simple hosts).
+DEFAULT_DATABASE_PATH = BACKEND_DIR / "todo.db"
 
 # "sqlite:///C:/path/to/todo.db" is the URL format SQLAlchemy expects.
-DATABASE_URL = f"sqlite:///{DATABASE_PATH.as_posix()}"
+# The environment variable always wins, so hosts with a persistent disk can
+# keep todo.db in that disk instead of inside the (ephemeral) source folder.
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip() or (
+    f"sqlite:///{DEFAULT_DATABASE_PATH.as_posix()}"
+)
 
-# check_same_thread=False lets FastAPI use the connection from different threads.
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+
+def _sqlite_file_path(url: str) -> Path | None:
+    """Return the file a sqlite URL points at, or None for other databases."""
+    prefix = "sqlite:///"
+    if not url.startswith(prefix):
+        return None
+    path = url[len(prefix) :]
+    return Path(path) if path else None
+
+
+# A sqlite file has to be created inside a folder that already exists, and a
+# freshly mounted disk starts empty - so create it if it is missing.
+_sqlite_file = _sqlite_file_path(DATABASE_URL)
+if _sqlite_file is not None:
+    _sqlite_file.parent.mkdir(parents=True, exist_ok=True)
+
+# check_same_thread=False lets FastAPI use the connection from different
+# threads. It only applies to SQLite; other databases reject the argument.
+_connect_args = {"check_same_thread": False} if _sqlite_file is not None else {}
+
+engine = create_engine(DATABASE_URL, connect_args=_connect_args)
 
 # Each request gets its own short-lived database session from this factory.
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
